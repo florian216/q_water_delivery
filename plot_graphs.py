@@ -8,7 +8,16 @@ This module draws basic plots representing the graphs:
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot(df, n, city_edges=None, govt_edges=None, scale=1e3, fname="fname"):
+def plot(
+    df,
+    n,
+    city_edges=None,
+    govt_edges=None,
+    scale=1e3,
+    fname="fname",
+    selection=None,
+    min_size=600,
+):
     """
     Plot a graph representing cities and connections.
 
@@ -17,8 +26,11 @@ def plot(df, n, city_edges=None, govt_edges=None, scale=1e3, fname="fname"):
         n (int): Number of cities to include
         city_edges (list): Edges between cities
         govt_edges (list): Edges between governorates
-        scale (float): Marker scaling factor
+        scale (float): Marker scaling factor (population / scale added to min_size)
         fname (str): Output file name
+        selection (array-like of 0/1, optional): QUBO result. Nodes with 1 are
+            filled in colour, nodes with 0 are drawn as empty circles.
+        min_size (float): Minimum marker area (points^2), so small nodes stay visible
     """
 
     if (city_edges is not None) + (govt_edges is not None) != 1:
@@ -42,18 +54,33 @@ def plot(df, n, city_edges=None, govt_edges=None, scale=1e3, fname="fname"):
 
     n = len(latitudes)
 
+    if selection is not None:
+        selection = np.asarray(selection).astype(int).ravel()
+        if len(selection) != n:
+            raise ValueError(
+                f"selection has length {len(selection)}, expected {n} (one 0/1 per node)."
+            )
+
+    sizes = min_size + pops / scale
+
     fig, ax = plt.subplots(figsize=(4, 9))
 
     # Plot nodes
-    for idx, (lon, lat, pop) in enumerate(zip(longitudes, latitudes, pops)):
-        plt.scatter(lon, lat, s=pop / scale, color="tab:blue")
+    for idx, (lon, lat, size) in enumerate(zip(longitudes, latitudes, sizes)):
+        if selection is not None:
+            # QUBO result: 1 -> filled, 0 -> empty circle
+            if selection[idx]:
+                ax.scatter(lon, lat, s=size, color="tab:red", edgecolors="black", lw=1.5)
+            else:
+                ax.scatter(lon, lat, s=size, facecolors="white", edgecolors="grey", lw=1.5)
+        elif is_admin_centre is not None and is_admin_centre[idx]:
+            # Highlight administrative centres
+            ax.scatter(lon, lat, s=size, color="tab:orange")
+        else:
+            ax.scatter(lon, lat, s=size, color="tab:blue")
 
         # Label nodes
-        plt.text(lon, lat, idx, ha="center", va="center", size=12)
-
-        # Highlight administrative centres
-        if is_admin_centre is not None and is_admin_centre[idx]:
-            plt.scatter(lon, lat, s=pop / scale, color="tab:orange")
+        ax.text(lon, lat, idx, ha="center", va="center", size=12, zorder=3)
 
     # Plot edges (quadratic Bézier curves)
     for city1 in range(n):
