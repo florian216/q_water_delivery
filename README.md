@@ -26,8 +26,8 @@ The problem is formulated as a **constrained binary optimisation**, mapped to a 
 ├── README.md
 ├── CESQ_challenge_pres.pdf            # Presentation slides
 ├── CESQ_hackathon_challenge.pdf       # Full challenge description & mathematical model
-├── administrative_regions.csv         # 11 regions: lat, lon, population
-├── cities_51largest.csv               # 51 largest cities: lat, lon, population, admin status
+├── data/administrative_regions.csv     # 11 regions: lat, lon, population
+├── data/cities_51largest.csv           # 51 largest cities: lat, lon, population, admin status
 ├── main.py                            # Data generation: graphs & QUBO
 ├── plots.py                           # Graph plotting module
 └── src/                               # (To be implemented) Quantum optimisation code and classical benchmarks

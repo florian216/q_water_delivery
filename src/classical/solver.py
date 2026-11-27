@@ -6,8 +6,8 @@ from pathlib import Path
 import random
 
 # Paths to CSV files
-CITIES_FILE = "cities_51largest.csv"
-GOVTS_FILE = "administrative_regions.csv"
+CITIES_FILE = "data/cities_51largest.csv"
+GOVTS_FILE = "data/administrative_regions.csv"
 
 def load(fname):
     path = os.path.join(os.getcwd(), fname)

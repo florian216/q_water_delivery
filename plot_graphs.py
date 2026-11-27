@@ -24,12 +24,16 @@ def plot(df, n, city_edges=None, govt_edges=None, scale=1e3, fname="fname"):
     if (city_edges is not None) + (govt_edges is not None) != 1:
         raise ValueError("Exactly one list of edges must be provided.")
 
-    # Keep only the largest n cities
-    df = df.head(n)
+    # Keep only the largest n cities (positional indexing from here on)
+    df = df.head(n).reset_index(drop=True)
 
-    longitudes = df["longitude"]
-    latitudes = df["latitude"]
-    pops = df["population_est"]
+    longitudes = df["longitude"].to_numpy()
+    latitudes = df["latitude"].to_numpy()
+    pops = df["population_est"].to_numpy()
+
+    # Normalise edges so (a, b) and (b, a) are equivalent
+    edges = city_edges if city_edges is not None else govt_edges
+    edges = {(min(a, b), max(a, b)) for a, b in edges}
 
     try:
         is_admin_centre = df["admin_centre"].values
@@ -56,9 +60,7 @@ def plot(df, n, city_edges=None, govt_edges=None, scale=1e3, fname="fname"):
         x1, y1 = longitudes[city1], latitudes[city1]
 
         for city2 in range(city1):
-            if city_edges is not None and (city2, city1) not in city_edges:
-                continue
-            if govt_edges is not None and (city2, city1) not in govt_edges:
+            if (city2, city1) not in edges:
                 continue
 
             x2, y2 = longitudes[city2], latitudes[city2]

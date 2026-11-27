@@ -3,8 +3,8 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
-CITIES_FILE = ROOT / "cities_51largest.csv"
-REGIONS_FILE = ROOT / "administrative_regions.csv"
+CITIES_FILE = ROOT / "data" / "cities_51largest.csv"
+REGIONS_FILE = ROOT / "data" / "administrative_regions.csv"
 
 
 def load(path):
